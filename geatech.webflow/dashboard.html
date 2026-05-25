@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>GeaTech — Tableau de bord des formulaires</title>
+  <style>
+    :root {
+      --bg: #0f1620;
+      --panel: #18222e;
+      --panel-2: #1f2c3a;
+      --border: #2a3a4d;
+      --text: #e7eef6;
+      --muted: #8aa0b6;
+      --accent: #e23b3b;
+      --accent-blue: #2f6df0;
+      --green: #2ec28a;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font-family: inherit; cursor: pointer; }
+    .hidden { display: none !important; }
+
+    /* ---------- Login view ---------- */
+    #login-view {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .brand-dot { width: 12px; height: 12px; border-radius: 3px; background: var(--accent); }
+    .brand-name { font-weight: 700; letter-spacing: 0.4px; }
+    .login-card h1 { font-size: 18px; margin: 18px 0 4px; }
+    .login-card p.sub { color: var(--muted); font-size: 13px; margin: 0 0 22px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
+    input[type=email], input[type=password], input[type=text], select {
+      width: 100%;
+      padding: 11px 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent-blue); }
+    .btn {
+      border: none;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:disabled { opacity: 0.6; cursor: default; }
+    .btn-block { width: 100%; margin-top: 22px; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-sm { padding: 7px 12px; font-size: 13px; }
+    .error { color: #ff7a7a; font-size: 13px; min-height: 18px; margin-top: 10px; }
+
+    /* ---------- Dashboard view ---------- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      flex-wrap: wrap;
+    }
+    .topbar .who { color: var(--muted); font-size: 13px; }
+    .wrap { padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .toolbar select, .toolbar input[type=text] { width: auto; min-width: 150px; }
+    .toolbar .search { flex: 1; min-width: 200px; max-width: 360px; }
+    .badge-count {
+      margin-left: auto;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 13px;
+    }
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--panel);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 12px 14px; vertical-align: top; }
+    thead th {
+      background: var(--panel-2);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    td.date { white-space: nowrap; color: var(--muted); }
+    td.msg { max-width: 360px; white-space: pre-wrap; word-break: break-word; }
+    td.page { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    a.email-link { color: var(--accent-blue); text-decoration: none; }
+    a.email-link:hover { text-decoration: underline; }
+    .type-badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .t-contact   { background: rgba(226,59,59,0.18);  color: #ff9a9a; }
+    .t-newsletter{ background: rgba(47,109,240,0.18); color: #8fb3ff; }
+    .t-footer    { background: rgba(46,194,138,0.18); color: #84e3bd; }
+    .t-search    { background: rgba(255,255,255,0.10);color: #c9d6e3; }
+    .del-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: #ff7a7a;
+      border-radius: 7px;
+      padding: 5px 9px;
+      font-size: 12px;
+    }
+    .del-btn:hover { background: rgba(255,122,122,0.12); }
+    .state {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== Login view ===== -->
+  <div id="login-view">
+    <form class="login-card" id="login-form">
+      <div class="brand"><span class="brand-dot"></span><span class="brand-name">GeaTech</span></div>
+      <h1>Tableau de bord</h1>
+      <p class="sub">Connectez-vous pour voir les formulaires reçus.</p>
+
+      <label for="login-email">E-mail</label>
+      <input type="email" id="login-email" autocomplete="username" required>
+
+      <label for="login-password">Mot de passe</label>
+      <input type="password" id="login-password" autocomplete="current-password" required>
+
+      <button type="submit" class="btn btn-block" id="login-btn">Se connecter</button>
+      <div class="error" id="login-error"></div>
+    </form>
+  </div>
+
+  <!-- ===== Dashboard view ===== -->
+  <div id="dash-view" class="hidden">
+    <div class="topbar">
+      <div class="brand"><span class="brand-dot"></span><span class="brand-name">GeaTech — Formulaires</span></div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span class="who" id="who"></span>
+        <button class="btn btn-ghost btn-sm" id="logout-btn">Se déconnecter</button>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="toolbar">
+        <select id="filter-type">
+          <option value="all">Tous les types</option>
+          <option value="contact">Contact</option>
+          <option value="newsletter">Newsletter</option>
+          <option value="footer">Footer</option>
+          <option value="search">Recherche</option>
+        </select>
+        <input type="text" class="search" id="filter-text" placeholder="Rechercher (nom, e-mail, message)…">
+        <button class="btn btn-ghost btn-sm" id="refresh-btn">Actualiser</button>
+        <button class="btn btn-ghost btn-sm" id="csv-btn">Exporter CSV</button>
+        <span class="badge-count" id="count">0</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Nom</th>
+              <th>E-mail</th>
+              <th>Message / Requête</th>
+              <th>Page</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="state hidden" id="state-loading">Chargement…</div>
+        <div class="state hidden" id="state-empty">Aucune soumission pour l'instant.</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
