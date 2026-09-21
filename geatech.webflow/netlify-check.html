@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Netlify forms — self check</title>
+<style>
+  :root { color-scheme: light dark; --bg:#f6f7f9; --card:#fff; --ink:#15181d; --muted:#5b6472;
+          --line:#e2e5ea; --ok:#0d7a3e; --bad:#c0261c; --warn:#8a5a00; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14171c; --card:#1b1f26; --ink:#e9ecf1; --muted:#9aa4b2; --line:#2a3039;
+            --ok:#4ad07f; --bad:#ff7a6e; --warn:#e0a53a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:32px 16px; background:var(--bg); color:var(--ink);
+         font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:720px; margin:0 auto; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:24px; margin-bottom:16px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:15px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);
+       margin:0 0 12px; }
+  p { margin:0 0 12px; }
+  .muted { color:var(--muted); font-size:14px; }
+  button { font:inherit; font-weight:600; background:#ef2b0e; color:#fff; border:0;
+           border-radius:8px; padding:12px 22px; cursor:pointer; }
+  button:disabled { opacity:.55; cursor:default; }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:600; font-size:13px; text-transform:uppercase;
+       letter-spacing:.04em; }
+  td.state { font-weight:600; white-space:nowrap; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92em;
+         background:rgba(128,128,128,.14); padding:1px 5px; border-radius:4px; }
+  ol { margin:8px 0 0; padding-left:20px; }
+  li { margin-bottom:6px; }
+  #verdict { display:none; }
+  #verdict.show { display:block; }
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <h1>Netlify forms — self check</h1>
+    <p class="muted">Diagnostics page for the site owner. It is not linked from anywhere
+      on the site and search engines are asked to skip it.</p>
+    <p>This sends one test submission to each of the three forms
+      (<code>contact</code>, <code>newsletter</code>, <code>footer</code>) and tells you
+      exactly what is wrong if they are not reaching Netlify.</p>
+    <p class="muted">You will get three notification e-mails (that is the point — it
+      proves they work) and three rows marked <em>NETLIFY CHECK</em> in
+      <strong>Forms</strong>, which you can delete afterwards. It also uses 3 of your
+      100 free monthly submissions.</p>
+    <p><strong>Open this page on the deployed Netlify site</strong>, not from the files
+      on your computer.</p>
+    <p><button id="run">Run the check</button></p>
+  </div>
+
+  <div class="card" id="results" style="display:none">
+    <h2>Results</h2>
+    <p class="muted" id="env"></p>
+    <table>
+      <thead><tr><th>Form</th><th>Response</th><th>Meaning</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="card" id="verdict">
+    <h2>What to do</h2>
+    <div id="verdict-body"></div>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var CONTROL = 'geatech-check-no-such-form';
+  var PROBES = [
+    { name: 'contact',    data: { name: 'NETLIFY CHECK', email: 'check@example.com',
+                                  message: 'Test submission from netlify-check.html - safe to delete.' } },
+    { name: 'newsletter', data: { email: 'check@example.com' } },
+    { name: 'footer',     data: { email: 'check@example.com' } }
+  ];
+
+  var isLocal = location.protocol === 'file:' ||
+                /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
+
+  function post(formName, data) {
+    var body = new URLSearchParams();
+    body.append('form-name', formName);
+    body.append('bot-field', '');
+    body.append('page', '/netlify-check.html');
+    body.append('subject', 'NETLIFY CHECK - safe to delete');
+    Object.keys(data || {}).forEach(function (k) { body.append(k, data[k]); });
+
+    return fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
+    }).then(function (res) {
+      return { status: res.status };
+    }).catch(function (err) {
+      return { status: 0, error: String(err) };
+    });
+  }
+
+  function meaning(status, isControl) {
+    if (status === 0) return ['bad', 'no connection to the server'];
+    if (status >= 200 && status < 400) {
+      return isControl
+        ? ['warn', 'accepted an unknown form name — something is intercepting the POST']
+        : ['ok', 'accepted by Netlify'];
+    }
+    if (status === 404) {
+      return isControl
+        ? ['ok', 'rejected, as expected']
+        : ['bad', 'Netlify does not know this form'];
+    }
+    if (status === 405) return ['bad', 'POST not allowed — not served by Netlify'];
+    return ['bad', 'unexpected response'];
+  }
+
+  function row(label, status, isControl) {
+    var m = meaning(status, isControl);
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><code>' + label + '</code></td>' +
+                   '<td class="state ' + m[0] + '">' + (status || 'failed') + '</td>' +
+                   '<td>' + m[1] + '</td>';
+    document.getElementById('rows').appendChild(tr);
+  }
+
+  function verdict(html) {
+    document.getElementById('verdict-body').innerHTML = html;
+    document.getElementById('verdict').className = 'card show';
+  }
+
+  document.getElementById('run').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Checking…';
+    document.getElementById('rows').innerHTML = '';
+    document.getElementById('verdict').className = 'card';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('env').textContent =
+      'Checked from ' + location.origin + (isLocal ? ' — this is not a deployed site' : '');
+
+    if (isLocal) {
+      btn.disabled = false;
+      btn.textContent = 'Run the check';
+      verdict('<p class="bad"><strong>You are not on the deployed site.</strong></p>' +
+        '<p>Netlify Forms only exist on Netlify: opening the HTML files from your computer ' +
+        '(or a local server) can never work, and the form will always show the red error ' +
+        'box there. Deploy the site and open <code>/netlify-check.html</code> on the ' +
+        '<code>.netlify.app</code> address or your own domain.</p>');
+      return;
+    }
+
+    post(CONTROL, {}).then(function (control) {
+      row(CONTROL + ' (control)', control.status, true);
+      var results = [];
+      return PROBES.reduce(function (chain, probe) {
+        return chain.then(function () {
+          return post(probe.name, probe.data).then(function (res) {
+            results.push({ name: probe.name, status: res.status });
+            row(probe.name, res.status, false);
+          });
+        });
+      }, Promise.resolve()).then(function () {
+        btn.disabled = false;
+        btn.textContent = 'Run the check again';
+
+        var accepted = results.filter(function (r) { return r.status >= 200 && r.status < 400; });
+        var missing = results.filter(function (r) { return r.status === 404; });
+        var dead = results.filter(function (r) { return r.status === 0; });
+
+        if (dead.length === results.length) {
+          return verdict('<p class="bad"><strong>The requests never reached the server.</strong></p>' +
+            '<p>Check your internet connection, and any ad-blocker or privacy extension ' +
+            'that might be blocking the request.</p>');
+        }
+        if (results.some(function (r) { return r.status === 405; }) || control.status === 405) {
+          return verdict('<p class="bad"><strong>This site is not served by Netlify.</strong></p>' +
+            '<p>The server refuses POST requests, which is what a plain static host does. ' +
+            'Deploy this site to Netlify and point your domain at it — ' +
+            '<code>NETLIFY_SETUP.md</code>, step 1.</p>');
+        }
+        if (missing.length) {
+          return verdict('<p class="bad"><strong>Netlify has not detected the forms yet.</strong></p>' +
+            '<p>Netlify only looks for forms <em>while a deploy runs</em>, so enabling the ' +
+            'setting is not enough on its own — a fresh deploy has to follow it:</p>' +
+            '<ol><li>Netlify → <strong>Project configuration → Forms</strong> → ' +
+            '<strong>Enable form detection</strong>.</li>' +
+            '<li><strong>Deploys → Trigger deploy → Deploy site</strong>, and wait for it ' +
+            'to finish.</li>' +
+            '<li>Open <strong>Forms</strong> — <code>contact</code>, <code>newsletter</code> ' +
+            'and <code>footer</code> should be listed.</li>' +
+            '<li>Reload this page and run the check again.</li></ol>');
+        }
+        if (accepted.length === results.length && control.status === 404) {
+          return verdict('<p class="ok"><strong>Everything works.</strong></p>' +
+            '<p>All three forms were accepted by Netlify. Open <strong>Forms</strong> in ' +
+            'your Netlify dashboard: you should see three <em>NETLIFY CHECK</em> rows — ' +
+            'delete them once you have seen them.</p>' +
+            '<p>If no e-mail arrives, the submissions are getting through but the ' +
+            'notification is missing: add one per form under <strong>Project configuration ' +
+            '→ Forms → Form notifications</strong> (<code>NETLIFY_SETUP.md</code>, step 3), ' +
+            'and check your spam folder.</p>');
+        }
+        if (accepted.length === results.length && control.status !== 404) {
+          return verdict('<p class="warn"><strong>Submissions are accepted, but so is a form ' +
+            'name that does not exist.</strong></p>' +
+            '<p>Something is answering the POST before Netlify\'s form handling does — ' +
+            'usually a catch-all redirect or proxy rule. Check any ' +
+            '<code>[[redirects]]</code> in <code>netlify.toml</code> or a ' +
+            '<code>_redirects</code> file, then run the check again.</p>');
+        }
+        return verdict('<p class="warn"><strong>Mixed results — see the table above.</strong></p>' +
+          '<p>The forms marked <em>Netlify does not know this form</em> need a deploy with ' +
+          'form detection enabled (<code>NETLIFY_SETUP.md</code>, step 2).</p>');
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

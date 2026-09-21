@@ -108,9 +108,16 @@ That's it. Every submission now lands in your inbox, and the e-mail's
 
 ## Troubleshooting
 
+**Start here: open `/netlify-check.html` on the deployed site** (e.g.
+`https://your-site.netlify.app/netlify-check.html`) and click *Run the check*.
+It sends a test submission to each form and tells you in plain language what is
+wrong and how to fix it. It is not linked from the site and is hidden from
+search engines. The three test submissions it creates show up as *NETLIFY
+CHECK* in **Forms** — delete them once you've seen them.
+
 | Symptom                                       | Fix                                                                                               |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Forms list is empty in Netlify                 | Form detection was off during the last deploy → enable it (step 2) and redeploy.                   |
-| Red "Oops! Something went wrong" on the site   | You are testing the local files or another host. Form posts only work on the deployed Netlify site.|
+| Red "Oops! Something went wrong" on the site   | Run `/netlify-check.html` (above). Usually: you are testing the local files, or step 2 hasn't been done yet. The browser console also prints the exact reason. |
 | Submissions arrive, no e-mail                  | The notification is per form — check that one exists for *that* form, and look in spam.            |
 | A new field doesn't show up in the e-mail      | Redeploy the site; Netlify refreshes the field list only during a deploy.                          |

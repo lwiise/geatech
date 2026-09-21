@@ -28,6 +28,31 @@
     return form.closest('.w-form');
   }
 
+  // Netlify Forms only work on the deployed Netlify site, and only once form
+  // detection has run during a deploy. When a submission fails, say which of
+  // those it is instead of just "something went wrong".
+  function diagnose(status) {
+    if (location.protocol === 'file:' || /^(localhost|127\.|0\.0\.0\.0)/.test(location.hostname)) {
+      return 'This page is not running on Netlify (' + location.origin + '), so there is ' +
+             'nothing to receive the form. Test on the deployed Netlify URL.';
+    }
+    if (status === 404) {
+      return 'Netlify does not know this form yet. Turn on Project configuration -> ' +
+             'Forms -> Form detection, then redeploy the site: detection only runs ' +
+             'during a deploy. See NETLIFY_SETUP.md, step 2.';
+    }
+    if (status === 405) {
+      return 'The server refused a POST, which means this site is not being served ' +
+             'by Netlify (or Netlify form handling is off). See NETLIFY_SETUP.md, step 1.';
+    }
+    if (status === 0) {
+      return 'The request never reached the server - no connection, or it was blocked ' +
+             'by the browser.';
+    }
+    return 'Netlify answered with HTTP ' + status + '. Open /netlify-check.html on the ' +
+           'deployed site for a full diagnosis.';
+  }
+
   // Swap the submit button label for its data-wait text while sending.
   function startSending(form) {
     var btn = form.querySelector('[type="submit"]');
@@ -95,11 +120,16 @@
       body: body
     })
       .then(function (res) {
-        if (!res.ok) throw new Error('Netlify responded with ' + res.status);
+        if (!res.ok) {
+          var err = new Error('HTTP ' + res.status);
+          err.status = res.status;
+          throw err;
+        }
         showDone(form);
       })
       .catch(function (err) {
-        console.warn('[netlify] form submission failed', err);
+        console.warn('[netlify] submission of form "' + form.getAttribute('name') +
+                     '" failed: ' + err.message + '\n' + diagnose(err.status || 0));
         form.dataset.sending = 'false';
         if (restore) restore();
         showFail(form);
