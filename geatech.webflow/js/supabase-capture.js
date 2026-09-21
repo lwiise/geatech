@@ -39,11 +39,11 @@
     if (type === 'contact') {
       base.name = read(form, ['name', 'name-3', 'Name']);
       base.email = read(form, ['email', 'email-2', 'Email']);
-      base.message = read(form, ['field', 'field-2']);
+      base.message = read(form, ['message', 'field', 'field-2']);
     } else if (type === 'newsletter') {
-      base.email = read(form, ['email-2']);
+      base.email = read(form, ['email', 'email-2']);
     } else if (type === 'footer') {
-      base.email = read(form, ['Email', 'Email-3']);
+      base.email = read(form, ['email', 'Email', 'Email-3']);
     } else if (type === 'search') {
       base.query = read(form, ['query']);
     }
@@ -68,6 +68,10 @@
     var type = classify(form);
     if (!type) return;
 
+    // Honeypot: only a bot fills the hidden field, so drop the submission.
+    var honeypot = form.querySelector('[name="bot-field"]');
+    if (honeypot && honeypot.value) return;
+
     var row = buildRow(form, type);
     // Skip empty submissions (nothing meaningful to store).
     if (!row.email && !row.query && !row.message && !row.name) return;
@@ -77,7 +81,8 @@
         console.warn('[supabase] insert failed', res.error);
         return;
       }
-      if (type !== 'search') showDone(form); // keep the search box usable
+      // js/netlify-forms.js owns the success message when it is loaded.
+      if (type !== 'search' && !window.NETLIFY_FORMS_HANDLES_UI) showDone(form);
     });
   }, true); // <-- capture phase
 })();

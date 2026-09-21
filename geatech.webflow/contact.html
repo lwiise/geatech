@@ -146,7 +146,7 @@
         </div>
         <div data-w-id="92a8d9be-2b86-6361-2ecb-849b408b23c7" style="opacity:0" class="contacts-form-wrapper">
           <div class="form-block-4 w-form">
-            <form id="email-form" name="email-form" data-name="Email Form" method="get" class="form-2" data-wf-page-id="67e6977278d63261e75faa88" data-wf-element-id="ea41af14-8b87-8ae8-ae5d-f8373dc8aafa"><input class="contacts-input w-input" maxlength="256" name="name" data-name="Name" placeholder="Votre nom" type="text" id="name"><input class="contacts-input w-input" maxlength="256" name="email" data-name="Email" placeholder="Votre e-mail" type="email" id="email-constant-support" required=""><textarea placeholder="Votre message" maxlength="5000" id="field" name="field" data-name="field" class="contacts-textarea w-input"></textarea><input type="submit" data-wait="Envoi en cours..." class="primary-red-button full-submit-width w-button" value="Envoyer"></form>
+            <form id="email-form" name="contact" data-name="Email Form" method="post" class="form-2" data-wf-page-id="67e6977278d63261e75faa88" data-wf-element-id="ea41af14-8b87-8ae8-ae5d-f8373dc8aafa" data-netlify="true" data-netlify-honeypot="bot-field"><input type="hidden" name="form-name" value="contact"><input type="hidden" name="subject" value="Nouveau message de contact - geatech.ch"><input type="hidden" name="page" value=""><div class="hp-field" style="display:none" aria-hidden="true"><label>Ne pas remplir ce champ<input name="bot-field" type="text" tabindex="-1" autocomplete="off"></label></div><input class="contacts-input w-input" maxlength="256" name="name" data-name="Name" placeholder="Votre nom" type="text" id="name"><input class="contacts-input w-input" maxlength="256" name="email" data-name="Email" placeholder="Votre e-mail" type="email" id="email-constant-support" required=""><textarea placeholder="Votre message" maxlength="5000" id="field" name="message" data-name="field" class="contacts-textarea w-input"></textarea><input type="submit" data-wait="Envoi en cours..." class="primary-red-button full-submit-width w-button" value="Envoyer"></form>
             <div class="w-form-done">
               <div>Thank you! Your submission has been received!</div>
             </div>
@@ -163,7 +163,7 @@
       <div class="about-3-form-wrapper">
         <h4 class="text-white">Vous souhaitez être informé des nouveaux projets ?</h4>
         <div class="form-block-2 w-form">
-          <form id="email-form-subscribe" name="email-form" data-name="Email Form" method="get" class="about-3-form" data-wf-page-id="67e6977278d63261e75faa88" data-wf-element-id="7adfb2a1-e2f0-9a43-502a-7ff634415698"><input class="form-text-field w-input" maxlength="256" name="email-2" data-name="Email 2" placeholder="Votre e-mail" type="email" id="email-2" required=""><input type="submit" data-wait="Envoi en cours..." class="primary-black-button full-width w-button" value="Envoyer"></form>
+          <form id="email-form-subscribe" name="newsletter" data-name="Email Form" method="post" class="about-3-form" data-wf-page-id="67e6977278d63261e75faa88" data-wf-element-id="7adfb2a1-e2f0-9a43-502a-7ff634415698" data-netlify="true" data-netlify-honeypot="bot-field"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="subject" value="Nouvelle inscription a la newsletter - geatech.ch"><input type="hidden" name="page" value=""><div class="hp-field" style="display:none" aria-hidden="true"><label>Ne pas remplir ce champ<input name="bot-field" type="text" tabindex="-1" autocomplete="off"></label></div><input class="form-text-field w-input" maxlength="256" name="email" data-name="Email 2" placeholder="Votre e-mail" type="email" id="email-2" required=""><input type="submit" data-wait="Envoi en cours..." class="primary-black-button full-width w-button" value="Envoyer"></form>
           <div class="w-form-done">
             <div>Thank you! Your submission has been received!</div>
           </div>
@@ -199,7 +199,7 @@
           <h2 class="footer-form-title">Construisons <span class="red-h2-text">votre avenir</span> ensemble !</h2>
           <p class="footer-form-description">Laissez nous votre e-mail et nous vous recontacterons.</p>
           <div class="w-form">
-            <form id="email-form-footer" name="email-form" data-name="Email Form" method="get" class="footer-email-form" data-wf-page-id="67e6977278d63261e75faa88" data-wf-element-id="7ce617ec-d939-c9a7-048b-7fd81a04dc37"><input class="footer-email-text-field w-input" maxlength="256" name="Email" data-name="Email" placeholder="Email" type="email" id="Email-3" required=""><input type="submit" data-wait="En cours..." class="primary-red-button w-button" value="Allons-y"></form>
+            <form id="email-form-footer" name="footer" data-name="Email Form" method="post" class="footer-email-form" data-wf-page-id="67e6977278d63261e75faa88" data-wf-element-id="7ce617ec-d939-c9a7-048b-7fd81a04dc37" data-netlify="true" data-netlify-honeypot="bot-field"><input type="hidden" name="form-name" value="footer"><input type="hidden" name="subject" value="Nouvelle demande de rappel - geatech.ch"><input type="hidden" name="page" value=""><div class="hp-field" style="display:none" aria-hidden="true"><label>Ne pas remplir ce champ<input name="bot-field" type="text" tabindex="-1" autocomplete="off"></label></div><input class="footer-email-text-field w-input" maxlength="256" name="email" data-name="Email" placeholder="Email" type="email" id="Email-3" required=""><input type="submit" data-wait="En cours..." class="primary-red-button w-button" value="Allons-y"></form>
             <div class="w-form-done">
               <div>Thank you! Your submission has been received!</div>
             </div>
@@ -226,6 +226,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/supabase-capture.js"></script>
+  <script src="js/netlify-forms.js"></script>
   <script src="js/webflow.js" type="text/javascript"></script>
 </body>
 </html>

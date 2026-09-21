@@ -1,0 +1,9 @@
+# Netlify settings for the Geatech website.
+#
+# The site is a static Webflow export, so there is nothing to build: Netlify
+# publishes the files in geatech.webflow/ and handles the form submissions.
+# See geatech.webflow/NETLIFY_SETUP.md for the one-time dashboard setup
+# (form detection + e-mail notifications).
+
+[build]
+  publish = "geatech.webflow"

@@ -1,7 +1,11 @@
 # Form Dashboard — Setup Guide
 
-This site now saves every form submission to **Supabase** and shows them in a
+This site saves every form submission to **Supabase** and shows them in a
 private, password-protected dashboard at **`dashboard.html`**.
+
+> Submissions are also sent to **Netlify Forms**, which is what e-mails you when
+> one arrives — see `NETLIFY_SETUP.md`. The two are independent: each one keeps
+> working on its own if the other is ever removed.
 
 You only need to do the one-time setup below. After that it works automatically.
 
@@ -104,5 +108,6 @@ logs in with your account.
 - Form fields differ between pages; the capture script already handles this. If
   you rename form fields later, update the name lists in
   `js/supabase-capture.js`.
-- If spam submissions start appearing, ask to add a hidden "honeypot" anti-bot
-  field — it's a small addition.
+- Spam is filtered by the hidden "honeypot" field that every form now carries:
+  bots fill it in, humans never see it, and those submissions are dropped
+  before they reach the dashboard.
