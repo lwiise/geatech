@@ -70,11 +70,25 @@
     form.style.display = 'none';
   }
 
-  function showFail(form) {
+  // Show the form's error box, with the reason underneath it. A bare "something
+  // went wrong" is unactionable: whoever is looking at the page needs to know
+  // whether Netlify rejected the form, never saw it, or was never asked.
+  function showFail(form, detail) {
     var wrap = wrapper(form);
     if (!wrap) return;
     var fail = wrap.querySelector('.w-form-fail');
-    if (fail) fail.style.display = 'block';
+    if (!fail) return;
+    fail.style.display = 'block';
+
+    var note = fail.querySelector('.netlify-error-detail');
+    if (!note) {
+      note = document.createElement('div');
+      note.className = 'netlify-error-detail';
+      note.style.cssText = 'margin-top:8px;font-size:12px;line-height:1.5;opacity:.8;' +
+                           'text-align:left;word-break:break-word;';
+      fail.appendChild(note);
+    }
+    note.textContent = detail;
   }
 
   // Build the url-encoded body Netlify expects.
@@ -116,26 +130,34 @@
     var restore = startSending(form);
     var body = encode(form);
 
-    fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body
-    })
-      .then(function (res) {
-        if (!res.ok) {
-          var err = new Error('HTTP ' + res.status);
-          err.status = res.status;
-          throw err;
-        }
+    function send(path) {
+      return fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+      }).then(function (res) {
+        if (res.ok) return res;
+        var err = new Error('HTTP ' + res.status);
+        err.status = res.status;
+        throw err;
+      });
+    }
+
+    // No retry on another path: a host that answers POST by serving the page
+    // would return 200 and we would show "thank you" for a message nobody
+    // received. A failure here is reported, never papered over.
+    send(ENDPOINT)
+      .then(function () {
         console.info('[netlify] "' + form.getAttribute('name') + '" accepted');
         showDone(form);
       })
       .catch(function (err) {
+        var why = diagnose(err.status || 0);
         console.warn('[netlify] submission of form "' + form.getAttribute('name') +
-                     '" failed: ' + err.message + '\n' + diagnose(err.status || 0));
+                     '" failed: ' + err.message + '\n' + why);
         form.dataset.sending = 'false';
         if (restore) restore();
-        showFail(form);
+        showFail(form, 'Netlify: ' + err.message + ' — ' + why);
       });
   }, true); // <-- capture phase, before Webflow's handler
 })();
