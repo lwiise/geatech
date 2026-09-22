@@ -92,6 +92,15 @@
     return params.toString();
   }
 
+  // Say out loud that this file is live and which forms it will handle. Without
+  // it, a quiet console is ambiguous: it looks the same whether the handler is
+  // working or was never loaded at all.
+  var found = [].slice.call(document.querySelectorAll('form[data-netlify]'))
+    .map(function (f) { return f.getAttribute('name'); });
+  console.info('[netlify] form handler ready - ' +
+    (found.length ? found.length + ' form(s) on this page: ' + found.join(', ')
+                  : 'no Netlify form on this page'));
+
   document.addEventListener('submit', function (e) {
     var form = e.target;
     if (!(form instanceof HTMLFormElement)) return;
@@ -118,6 +127,7 @@
           err.status = res.status;
           throw err;
         }
+        console.info('[netlify] "' + form.getAttribute('name') + '" accepted');
         showDone(form);
       })
       .catch(function (err) {
