@@ -108,7 +108,14 @@ That's it. Every submission now lands in your inbox, and the e-mail's
 
 ## Troubleshooting
 
-**Start here: open `/netlify-check.html` on the deployed site** (e.g.
+**First, is the current code even deployed?** Open `/netlify-check.html` on your
+site. If Netlify answers **Page not found**, the deploy you are looking at is
+older than these changes — check **Deploys** in Netlify (is the site linked to
+this Git repository and the `main` branch? did the last deploy succeed?). Until
+that page loads, the form is still running the old Webflow code, whose error
+message looks exactly the same.
+
+**Then: open `/netlify-check.html`** (e.g.
 `https://your-site.netlify.app/netlify-check.html`) and click *Run the check*.
 It sends a test submission to each form and tells you in plain language what is
 wrong and how to fix it. It is not linked from the site and is hidden from
@@ -118,6 +125,7 @@ CHECK* in **Forms** — delete them once you've seen them.
 | Symptom                                       | Fix                                                                                               |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Forms list is empty in Netlify                 | Form detection was off during the last deploy → enable it (step 2) and redeploy.                   |
+| `/netlify-check.html` gives a 404              | The deployed site is older than these changes. Check **Deploys**: repository, branch, and that the last deploy succeeded. |
 | Red "Oops! Something went wrong" on the site   | Run `/netlify-check.html` (above). Usually: you are testing the local files, or step 2 hasn't been done yet. The browser console also prints the exact reason. |
 | Submissions arrive, no e-mail                  | The notification is per form — check that one exists for *that* form, and look in spam.            |
 | A new field doesn't show up in the e-mail      | Redeploy the site; Netlify refreshes the field list only during a deploy.                          |
