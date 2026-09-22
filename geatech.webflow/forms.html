@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Form definitions</title>
+<style>
+  body { margin:0; padding:40px 20px; background:#f6f7f9; color:#15181d;
+         font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:620px; margin:0 auto; background:#fff; border:1px solid #e2e5ea;
+         border-radius:12px; padding:28px; }
+  h1 { font-size:20px; margin:0 0 12px; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92em;
+         background:rgba(128,128,128,.14); padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Form definitions</h1>
+  <p>Nothing to do here. This page exists so that Netlify can find the site's three
+    forms while it deploys.</p>
+  <p>The real forms live on the contact page, the home page and in the footer. They are
+    written in Webflow's exported markup, which Netlify's form detector does not always
+    manage to read. The copies below say the same thing in the plainest possible HTML,
+    so detection cannot miss them: Netlify merges form definitions by name, so
+    <code>contact</code>, <code>newsletter</code> and <code>footer</code> get registered
+    either way.</p>
+  <p>Keep the field names here in step with the real forms — see
+    <code>NETLIFY_SETUP.md</code>.</p>
+
+  <!-- Detection copies. Hidden: they are read by Netlify at deploy time, not by people. -->
+  <div hidden aria-hidden="true">
+    <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="contact">
+      <input type="hidden" name="subject">
+      <input type="hidden" name="page">
+      <input type="text" name="bot-field">
+      <input type="text" name="name">
+      <input type="email" name="email">
+      <textarea name="message"></textarea>
+      <button type="submit">Envoyer</button>
+    </form>
+
+    <form name="newsletter" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="newsletter">
+      <input type="hidden" name="subject">
+      <input type="hidden" name="page">
+      <input type="text" name="bot-field">
+      <input type="email" name="email">
+      <button type="submit">Envoyer</button>
+    </form>
+
+    <form name="footer" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="footer">
+      <input type="hidden" name="subject">
+      <input type="hidden" name="page">
+      <input type="text" name="bot-field">
+      <input type="email" name="email">
+      <button type="submit">Allons-y</button>
+    </form>
+  </div>
+</main>
+</body>
+</html>

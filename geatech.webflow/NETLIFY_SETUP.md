@@ -19,6 +19,13 @@ dashboard (steps 1–3), which takes about five minutes.
 | `newsletter`      | "Vous souhaitez être informé…" block | email                  |
 | `footer`          | Footer of every page                 | email                  |
 
+The forms are declared twice: once in the real Webflow markup on the pages, and
+once in the plainest possible HTML on **`forms.html`**, a hidden page nobody
+visits. Netlify merges form definitions by name, so the copies on `forms.html`
+guarantee the three forms get registered even if Netlify's detector cannot read
+Webflow's dense exported markup. **If you rename or add a field, change it in
+both places.**
+
 Every submission also carries a `page` field (which page it came from) and a
 `subject` field, which Netlify uses as the **subject line of the notification
 e-mail**. To change a subject line, edit the `value=""` of the hidden
@@ -46,7 +53,10 @@ Netlify only looks for forms when this is switched on.
 2. Under **Form detection**, click **Enable form detection**.
 3. Go to **Deploys → Trigger deploy → Deploy site** to redeploy.
    Form detection happens *during a deploy*, so this redeploy is required —
-   without it the forms list stays empty.
+   without it the forms list stays empty. Watch for a **new row at the top of
+   the deploy list** and wait for it to say *Published*: if no new row appears,
+   the deploy did not run and detection still has not happened.
+   (Any push to `main` also triggers a deploy, which does the same job.)
 4. Open **Forms**: `contact`, `newsletter` and `footer` should now be listed.
 
 ## 3. Turn on e-mail notifications
