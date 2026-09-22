@@ -21,6 +21,25 @@
     return form.closest('.w-form');
   }
 
+  // Which forms belong to us.
+  //
+  // Do NOT key this on the `data-netlify` attribute alone: when Netlify detects
+  // a form it rewrites the page and strips that attribute, so on the deployed
+  // site - the only place any of this matters - it is gone. The hidden
+  // `form-name` input is what survives, because Netlify needs it to route the
+  // submission; it also adds one itself if a form is missing it. The attribute
+  // check stays for pages Netlify has not processed (local preview, a deploy
+  // made before form detection was switched on).
+  function isNetlifyForm(form) {
+    return form.hasAttribute('data-netlify') ||
+           form.hasAttribute('netlify') ||
+           !!form.querySelector('input[name="form-name"]');
+  }
+
+  function netlifyForms() {
+    return [].slice.call(document.querySelectorAll('form')).filter(isNetlifyForm);
+  }
+
   // Netlify Forms only work on the deployed Netlify site, and only once form
   // detection has run during a deploy. When a submission fails, say which of
   // those it is instead of just "something went wrong".
@@ -109,8 +128,7 @@
   // Say out loud that this file is live and which forms it will handle. Without
   // it, a quiet console is ambiguous: it looks the same whether the handler is
   // working or was never loaded at all.
-  var found = [].slice.call(document.querySelectorAll('form[data-netlify]'))
-    .map(function (f) { return f.getAttribute('name'); });
+  var found = netlifyForms().map(function (f) { return f.getAttribute('name'); });
   console.info('[netlify] form handler ready - ' +
     (found.length ? found.length + ' form(s) on this page: ' + found.join(', ')
                   : 'no Netlify form on this page'));
@@ -118,7 +136,7 @@
   document.addEventListener('submit', function (e) {
     var form = e.target;
     if (!(form instanceof HTMLFormElement)) return;
-    if (!form.hasAttribute('data-netlify')) return;
+    if (!isNetlifyForm(form)) return;
 
     // Replaces both the browser's page POST and Webflow's own handler.
     e.preventDefault();
