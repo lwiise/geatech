@@ -6,9 +6,6 @@ your Netlify dashboard and Netlify e-mails you as soon as one arrives.
 The code side is done. What is left is the one-time setup below, in the Netlify
 dashboard (steps 1–3), which takes about five minutes.
 
-> The Supabase dashboard (`dashboard.html`) keeps working exactly as before —
-> each submission is saved in both places. See `SUPABASE_SETUP.md`.
-
 ---
 
 ## The three forms
@@ -92,13 +89,12 @@ That's it. Every submission now lands in your inbox, and the e-mail's
 
 - **Free plan limits**: 100 submissions per month across all forms, and 100 MB
   of uploads. Above that Netlify pauses form handling until the next month or
-  until you upgrade (Forms Level 1). Your Supabase dashboard keeps recording
-  submissions either way, so nothing is lost.
+  until you upgrade (Forms Level 1) — submissions over the limit are lost, so
+  keep an eye on **Forms → Usage** if the site gets busy.
 - **Spam**: every form contains a hidden "honeypot" field (`bot-field`). Bots
-  fill it in, humans never see it, and those submissions are dropped
-  automatically — by Netlify *and* before they reach the Supabase dashboard.
-  Netlify also runs Akismet spam filtering; anything it flags lands in
-  **Forms → Spam** instead of your inbox.
+  fill it in, humans never see it, and Netlify drops those submissions
+  automatically. Netlify also runs Akismet spam filtering; anything it flags
+  lands in **Forms → Spam** instead of your inbox.
 - **Stronger protection**: if spam still gets through, add reCAPTCHA 2 — one
   line of HTML per form (`data-netlify-recaptcha="true"` plus a
   `<div data-netlify-recaptcha="true"></div>` before the submit button). Ask

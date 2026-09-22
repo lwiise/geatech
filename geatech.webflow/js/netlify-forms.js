@@ -10,19 +10,12 @@
 //      call Webflow's API (which fails on an exported site and shows the red
 //      error box). We listen in the CAPTURE phase and stop propagation, so
 //      Webflow's handler never runs.
-//
-// The Supabase capture script also listens on `document` in the capture phase,
-// so it keeps receiving every submission for the dashboard; only the success
-// message is handed over to this file (see window.NETLIFY_FORMS_HANDLES_UI).
 (function () {
   'use strict';
 
   // Netlify accepts form posts on any path of the site; "/" is the documented
   // endpoint for JavaScript submissions.
   var ENDPOINT = '/';
-
-  // Tell js/supabase-capture.js not to also show the success message.
-  window.NETLIFY_FORMS_HANDLES_UI = true;
 
   function wrapper(form) {
     return form.closest('.w-form');
